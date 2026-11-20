@@ -25,15 +25,22 @@ jobs:
         run: |
           set -euo pipefail
           project_root="$GITHUB_WORKSPACE"
-          if [[ ! -f "$project_root/Justicia.xcodeproj/project.pbxproj" ]]; then
-            archive="$GITHUB_WORKSPACE/Justicia-iOS.zip"
-            test -f "$archive"
+          archive="$GITHUB_WORKSPACE/Justicia-iOS.zip"
+          if [[ -f "$archive" ]]; then
             project_root="$RUNNER_TEMP/justicia-source"
             mkdir -p "$project_root"
             ditto -x -k "$archive" "$project_root"
           fi
           test -f "$project_root/Justicia.xcodeproj/project.pbxproj"
           printf 'JUSTICIA_PROJECT_ROOT=%s\n' "$project_root" >> "$GITHUB_ENV"
+
+      - name: Verificar el flujo de expedientes
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$JUSTICIA_PROJECT_ROOT"
+          swiftc Justicia/Modelo.swift Verificacion/main.swift -o "$RUNNER_TEMP/justicia-test"
+          "$RUNNER_TEMP/justicia-test"
 
       - name: Compilar para iPhone
         shell: bash
@@ -54,8 +61,8 @@ jobs:
           app="$RUNNER_TEMP/justicia-build/Release-iphoneos/Justicia.app"
           test -x "$app/Justicia"
           test -f "$app/Info.plist"
-          test -f "$app/Web/index.html"
-          test -f "$app/Web/assets/justicia.js"
+          test -f "$app/Demo.json"
+          test -f "$app/Blank.json"
           mkdir -p "$RUNNER_TEMP/ipa/Payload" "$GITHUB_WORKSPACE/artifacts"
           ditto "$app" "$RUNNER_TEMP/ipa/Payload/Justicia.app"
           (
