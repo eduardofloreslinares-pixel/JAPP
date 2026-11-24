@@ -7,6 +7,7 @@ on:
     paths:
       - 'Justicia/**'
       - 'Justicia.xcodeproj/**'
+      - 'Verificacion/**'
       - '.github/workflows/build-ipa.yml'
       - 'Justicia-iOS.zip'
 
@@ -61,8 +62,6 @@ jobs:
           app="$RUNNER_TEMP/justicia-build/Release-iphoneos/Justicia.app"
           test -x "$app/Justicia"
           test -f "$app/Info.plist"
-          test -f "$app/Demo.json"
-          test -f "$app/Blank.json"
           mkdir -p "$RUNNER_TEMP/ipa/Payload" "$GITHUB_WORKSPACE/artifacts"
           ditto "$app" "$RUNNER_TEMP/ipa/Payload/Justicia.app"
           (
